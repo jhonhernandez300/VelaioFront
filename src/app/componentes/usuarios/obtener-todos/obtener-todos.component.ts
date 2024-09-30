@@ -21,7 +21,7 @@ export class ObtenerTodosComponent implements OnInit {
   showDiv = false;  
   userChoice = false;  
   users: any[] = [];
-  displayedColumns: string[] = ['nombre', 'email', 'password', 'edad'];
+  displayedColumns: string[] = ['nombre', 'email', 'password', 'edad', 'darTarea'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator; 
 
@@ -47,10 +47,10 @@ export class ObtenerTodosComponent implements OnInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  // darTarea(usuario: iUsuarioConRolDTO) {
-  //   this.usuarioTransferService.changeUsuario(usuario);
-  //   this.router.navigate(['/crear-tarea']);        
-  // }
+  darTarea(usuario: iUsuario) {
+    this.usuarioTransferService.changeUser(usuario);
+    this.router.navigate(['/crear-tarea']);        
+  }
 
   // update(usuario: iUsuarioConRolDTO) {
   //   this.usuarioTransferService.changeUsuario(usuario);

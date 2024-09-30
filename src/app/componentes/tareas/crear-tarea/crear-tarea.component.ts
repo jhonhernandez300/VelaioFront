@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { TareaService } from '../../../servicios/tarea.service';
+import { ApplicationDataService } from '../../../servicios/application-data.service';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../general/confirm-dialog/confirm-dialog.component';
 import { CloseDialogComponent } from '../../general/close-dialog/close-dialog.component';
 import { iTarea } from '../../../interfaces/iTarea';
 import { UsuarioTransferService } from '../../../servicios/usuario-transfer.service';
-import { iUsuarioConRolDTO } from '../../../interfaces/iUsuarioConRolDTO';
+import { iUsuario } from '../../../interfaces/iUsuario';
 
 @Component({
   selector: 'app-crear-tarea',
@@ -18,13 +18,13 @@ export class CrearTareaComponent implements OnInit{
   myForm!: FormGroup; 
   submitted = false;
   tareaIdSeleccionada!: number;
-  usuario: iUsuarioConRolDTO | null = null;
+  usuario: iUsuario | null = null;
   selectedUsuarioId!: number;
   tareas: iTarea[] = [];
   
   constructor(
     private formBuilder: FormBuilder,
-    private tareaService: TareaService,
+    private applicationDataService: ApplicationDataService,
     private router: Router,
     public dialog: MatDialog,
     private usuarioTransferService: UsuarioTransferService 
@@ -35,11 +35,11 @@ export class CrearTareaComponent implements OnInit{
   ngOnInit(): void {   
     this.initializeForm();
     
-    this.usuarioTransferService.currentUsuario.subscribe(usuario => {
+    this.usuarioTransferService.currentUser.subscribe(usuario => {
       
       if(usuario != null){
         this.usuario = usuario;
-        //console.log("En update ", this.usuario);    
+        console.log("En update ", this.usuario);    
       }      
     });
   }
@@ -57,41 +57,41 @@ export class CrearTareaComponent implements OnInit{
     this.myForm.reset();
   }
 
-  public async onSubmit(): Promise<void> {
-    this.submitted = true;
-    this.myForm.patchValue({
-      usuarioId: null 
-    });
-    //console.log("Form value ", this.myForm.value);        
+  private generateTareaId(): number {
+    // Generar un nuevo ID único para la tarea
+    return Math.floor(Math.random() * 1000);  
+  }
 
-    if (this.myForm.invalid) {
-      //console.log('Error de validación');
-      this.dialog.open(CloseDialogComponent, {            
-        data: { message: "Revise los valores del formulario" } 
-      });
-      return;
-    }             
-    
+  public async onSubmit(): Promise<void> {
+    this.submitted = true;    
     this.myForm.patchValue({
       usuarioId: this.usuario?.usuarioId
     });
-    //console.log("form values ", this.myForm.value);
-    
-    this.tareaService.CrearTarea(this.myForm.value).subscribe({
-      next: (response: any) => {
-          //console.log('response', response);
-          this.dialog.open(CloseDialogComponent, {            
-            data: { message: "Tarea creada" } 
-          });
-      },
-      error: (error: any) => {
-          //console.error('Request error:', error);
-          this.dialog.open(CloseDialogComponent, {            
-            data: { message: error } 
-          });
-      }
-  });     
+
+    if (this.myForm.invalid) {
+      this.dialog.open(CloseDialogComponent, {            
+          data: { message: "Revise los valores del formulario" } 
+      });
+      return;
+    }   
+  
+    const newTarea = {
+        tareaId: this.generateTareaId(),  
+        descripcion: this.myForm.get('descripcion')?.value,
+        estado: this.myForm.get('estado')?.value
+    };
+
+    if(this.usuario?.usuarioId != null){
+      this.applicationDataService.addTaskToUser(this.usuario.usuarioId, newTarea);    
+      this.dialog.open(ConfirmDialogComponent, {            
+        data: { message: "Tarea agregada con éxito" } 
+      });
+  
+      // Reiniciar el formulario después de la adición exitosa
+      this.onReset(); 
+    }     
   }
+
 
   get form(): { [key: string]: AbstractControl; }
   {

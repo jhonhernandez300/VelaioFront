@@ -1,14 +1,17 @@
 import { Injectable } from '@angular/core';
+import { iUsuario } from '../interfaces/iUsuario';
+import { Observable, of } from 'rxjs';
+import { iTarea } from '../interfaces/iTarea';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ApplicationDataService{
+export class ApplicationDataService {
   private storageKey = 'users';
 
   constructor() { 
     if (!this.getUsers().length) {
-      const defaultUsers =   [
+      const defaultUsers: iUsuario[] = [
         {
           "usuarioId": 1,
           "nombre": "Juan Pérez",
@@ -19,10 +22,16 @@ export class ApplicationDataService{
             { "habilidadId": 1, "nombre": "Angular" },
             { "habilidadId": 2, "nombre": "TypeScript" }
           ],
-          "tarea": {
-            "tareaId": 1,
-            "descripcion": "Crear componentes en Angular"
-          }
+          "tarea": [ // Tareas iniciales para el usuario 1
+            {
+              "tareaId": 1,
+              "descripcion": "Crear componentes en Angular"
+            },
+            {
+              "tareaId": 2,
+              "descripcion": "Mejorar el rendimiento de la aplicación"
+            }
+          ]
         },
         {
           "usuarioId": 2,
@@ -34,10 +43,12 @@ export class ApplicationDataService{
             { "habilidadId": 3, "nombre": "JavaScript" },
             { "habilidadId": 4, "nombre": "CSS" }
           ],
-          "tarea": {
-            "tareaId": 2,
-            "descripcion": "Desarrollar el frontend con JavaScript"
-          }
+          "tarea": [ // Tareas iniciales para el usuario 2
+            {
+              "tareaId": 3,
+              "descripcion": "Desarrollar el frontend con JavaScript"
+            }
+          ]
         },
         {
           "usuarioId": 3,
@@ -49,10 +60,12 @@ export class ApplicationDataService{
             { "habilidadId": 5, "nombre": "React" },
             { "habilidadId": 1, "nombre": "Angular" }
           ],
-          "tarea": {
-            "tareaId": 3,
-            "descripcion": "Implementar la vista con React"
-          }
+          "tarea": [ // Tareas iniciales para el usuario 3
+            {
+              "tareaId": 4,
+              "descripcion": "Implementar la vista con React"
+            }
+          ]
         },
         {
           "usuarioId": 4,
@@ -64,10 +77,12 @@ export class ApplicationDataService{
             { "habilidadId": 6, "nombre": "Vue.js" },
             { "habilidadId": 4, "nombre": "CSS" }
           ],
-          "tarea": {
-            "tareaId": 4,
-            "descripcion": "Diseñar el estilo del proyecto en CSS"
-          }
+          "tarea": [ // Tareas iniciales para el usuario 4
+            {
+              "tareaId": 5,
+              "descripcion": "Diseñar el estilo del proyecto en CSS"
+            }
+          ]
         },
         {
           "usuarioId": 5,
@@ -79,10 +94,12 @@ export class ApplicationDataService{
             { "habilidadId": 2, "nombre": "TypeScript" },
             { "habilidadId": 3, "nombre": "JavaScript" }
           ],
-          "tarea": {
-            "tareaId": 5,
-            "descripcion": "Escribir scripts en TypeScript"
-          }
+          "tarea": [ // Tareas iniciales para el usuario 5
+            {
+              "tareaId": 6,
+              "descripcion": "Escribir scripts en TypeScript"
+            }
+          ]
         },
         {
           "usuarioId": 6,
@@ -94,38 +111,54 @@ export class ApplicationDataService{
             { "habilidadId": 7, "nombre": "Node.js" },
             { "habilidadId": 5, "nombre": "React" }
           ],
-          "tarea": {
-            "tareaId": 6,
-            "descripcion": "Desarrollar el backend con Node.js"
-          }
+          "tarea": [ // Tareas iniciales para el usuario 6
+            {
+              "tareaId": 7,
+              "descripcion": "Desarrollar el backend con Node.js"
+            }
+          ]
         }
-      ];   
+      ];
+      
       this.setUsers(defaultUsers);
     }
   }
 
-  getUsers() {
-    const usersJson = localStorage.getItem(this.storageKey);
-    return usersJson ? JSON.parse(usersJson) : [];
+  getUsers(): iUsuario[] {    
+    const users: iUsuario[] = JSON.parse(localStorage.getItem(this.storageKey) || '[]');
+
+    // Asegurarse de que cada usuario tenga un arreglo de tareas
+    return users.map((user: iUsuario) => ({
+      ...user,
+      tarea: Array.isArray(user.tarea) ? user.tarea : [] // Validar que 'tarea' sea un arreglo
+    }));
   }
   
-  setUsers(users: any[]) {
+  setUsers(users: iUsuario[]): void {    
     localStorage.setItem(this.storageKey, JSON.stringify(users));
   }
   
-  // updateUser(usuarioId: number, updatedUser: any) {
-  //   const users = this.getUsers();
-  //   const index = users.findIndex(user => user.usuarioId === usuarioId);
-  //   if (index !== -1) {
-  //     users[index] = { ...users[index], ...updatedUser };
-  //     this.setUsers(users); // Actualiza localStorage
-  //   }
-  // }
+  addTaskToUser(usuarioId: number, nuevaTarea: iTarea): void {
+    const users = this.getUsers(); // Obtener la lista de usuarios
+    const userIndex = users.findIndex(user => user.usuarioId === usuarioId);
+    
+    if (userIndex !== -1) {
+      // Verifica si 'tarea' es un arreglo antes de hacer push
+      if (!Array.isArray(users[userIndex].tarea)) {
+        // Si no es un arreglo, inicialízalo como un arreglo vacío
+        users[userIndex].tarea = [];
+      }
+      
+      users[userIndex].tarea.push(nuevaTarea); // Agregar la nueva tarea
+      this.setUsers(users); // Guardar los cambios en localStorage
+    } else {
+      console.error("Usuario no encontrado."); // Mensaje de error si no se encuentra el usuario
+    }
+  } 
   
-  addUser(newUser: any) {
+  addUser(newUser: iUsuario) {
     const users = this.getUsers();
     // Agrega y actualiza localStorage
     this.setUsers([...users, newUser]); 
   }
- 
 }

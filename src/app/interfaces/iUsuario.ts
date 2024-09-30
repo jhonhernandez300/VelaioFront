@@ -6,7 +6,7 @@ export interface iUsuario{
     nombre: string,
     email: string,    
     password: string,    
-    Edad: number,
+    edad: number,
     habilidades: iHabilidad[];     
-    tareas: iTarea[];
+    tarea: iTarea[];
 }

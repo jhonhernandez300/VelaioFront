@@ -3,13 +3,14 @@
     <mat-card id="header">
       <mat-card-header>
         <mat-card-title>GUARDAR TAREA</mat-card-title>
-        <mat-card-title>{{ usuario?.nombre }} - {{ usuario?.email }} - {{ usuario?.rolNombre }}</mat-card-title>
+        <mat-card-title>{{ usuario?.nombre }} - {{ usuario?.email }} - {{ usuario?.edad }}</mat-card-title>
       </mat-card-header>
     </mat-card>
 
     <form [formGroup]="myForm" id="the-form" (ngSubmit)="onSubmit()">
       <div class="row">
         <div class="col">
+
           <mat-form-field appearance="fill" class="form-element">
             <mat-label>Descripción</mat-label>
             <input matInput formControlName="descripcion" placeholder="Descripción">
@@ -19,6 +20,7 @@
               <div *ngIf="myForm.get('descripcion')?.hasError('maxlength')">Hasta 30 caracteres</div>
             </mat-error>
           </mat-form-field>
+          
         </div>
 
         <div class="col" id="buttons">

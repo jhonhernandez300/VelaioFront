@@ -1,19 +1,19 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { iUsuarioConRolDTO } from '../interfaces/iUsuarioConRolDTO'; 
+import { iUsuario } from '../interfaces/iUsuario'; 
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsuarioTransferService {
-  private usuarioSource = new BehaviorSubject<iUsuarioConRolDTO | null>(null);
-  currentUsuario = this.usuarioSource.asObservable();
+  private userSource = new BehaviorSubject<iUsuario | null>(null);
+  currentUser = this.userSource.asObservable();
 
   constructor() { }
 
-  changeUsuario(usuario: iUsuarioConRolDTO) {
+  changeUser(usuario: iUsuario) {
     //console.log("En el transfer service ", employee);
-    this.usuarioSource.next(usuario);
+    this.userSource.next(usuario);
   }
 }

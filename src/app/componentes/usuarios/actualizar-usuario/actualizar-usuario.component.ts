@@ -38,14 +38,14 @@ export class ActualizarUsuarioComponent implements OnInit{
   }
 
 obtenerUsuarioAEditar(): void{
-  this.usuarioTransferService.currentUsuario.subscribe(usuario => {
+  // this.usuarioTransferService.currentUsuario.subscribe(usuario => {
       
-    if(usuario != null){
-      this.usuario = usuario;            
-      this.myForm.patchValue(usuario);      
-      this.selectedRolId = usuario.rolId; 
-    }      
-  });
+  //   if(usuario != null){
+  //     this.usuario = usuario;            
+  //     this.myForm.patchValue(usuario);      
+  //     this.selectedRolId = usuario.rolId; 
+  //   }      
+  // });
 }
 
 obtenerTodosLosRoles(): void{
