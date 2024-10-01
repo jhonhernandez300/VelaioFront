@@ -1,0 +1,10 @@
+.table-responsive {
+    overflow-x: auto;
+    /* Para dispositivos iOS */
+    -webkit-overflow-scrolling: touch; 
+  }
+  
+  .mat-table {
+    width: 100%; 
+  }
+  
