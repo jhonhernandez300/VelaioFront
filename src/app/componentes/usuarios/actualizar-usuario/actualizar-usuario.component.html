@@ -1,8 +1,11 @@
-<!-- <div class="container">
+<div class="container">
     <div id="second-container">
       <mat-card id="header">
         <mat-card-header>
-          <mat-card-title>ACTUALIZAR USUARIO </mat-card-title>
+          <mat-card-title>ACTUALIZAR HABILIDADES </mat-card-title>
+          <mat-card-subtitle>
+            Usuario: {{ usuario?.nombre }} {{ usuario?.email }} {{ usuario?.edad }}
+          </mat-card-subtitle>
         </mat-card-header>
       </mat-card>
   
@@ -10,60 +13,42 @@
 
         <div class="row">
           <div class="col">
-            <mat-form-field appearance="fill"  class="form-element">
-                <mat-label>Nombre</mat-label>
-                <input matInput formControlName="nombre" placeholder="nombre">
-                <mat-error *ngIf="submitted && form['nombre'].errors">
-                  <div *ngIf="form['nombre']?.errors?.['required']">Requerido </div>
-                  <div *ngIf="form['nombre']?.errors?.['minlength']">Al menos 3 caracteres</div>
-                  <div *ngIf="form['nombre']?.errors?.['maxlength']">Hasta 30 caracteres</div>
-                </mat-error>
-              </mat-form-field>
-
-            <mat-form-field appearance="fill"  class="form-element">
-              <mat-label>Password</mat-label>
-              <input matInput formControlName="password" placeholder="password" type="password">
-              <mat-error *ngIf="submitted && form['password'].errors">
-                <div *ngIf="form['password']?.errors?.['required']">Requerido </div>
-                <div *ngIf="form['password']?.errors?.['minlength']">Al menos 8 caracteres</div>
-                <div *ngIf="form['password']?.errors?.['maxlength']">Hasta 30 caracteres</div>
-              </mat-error>
-            </mat-form-field>            
+            <h3>Habilidades</h3>
+            <div class="habilidades-container">
+              <div *ngFor="let habilidad of usuario?.habilidades" class="habilidad-item">
+                <span>{{ habilidad.nombre }}</span>
+                <button mat-raised-button color="warn" (click)="eliminarHabilidad(habilidad.habilidadId)">Eliminar</button>
+              </div>
+            </div>
           </div>
         </div>
 
           <div class="row">
             <div class="col">
               <mat-form-field appearance="fill"  class="form-element">
-                <mat-label>Email</mat-label>
-                <input matInput formControlName="email" placeholder="email">
-                <mat-error *ngIf="submitted && form['email'].errors">
-                  <div *ngIf="form['email']?.errors?.['required']">Requerido </div>
-                  <div *ngIf="form['email']?.errors?.['minlength']">Al menos 8 caracteres</div>
-                  <div *ngIf="form['email']?.errors?.['maxlength']">Hasta 30 caracteres</div>
+                <mat-label>Habilidad Nueva</mat-label>
+                <input matInput formControlName="habilidadNueva" placeholder="habilidadNueva">
+                <mat-error *ngIf="submitted && form['habilidadNueva'].errors">
+                  <div *ngIf="form['habilidadNueva']?.errors?.['required']">Requerido </div>
+                  <div *ngIf="form['habilidadNueva']?.errors?.['minlength']">Al menos 3 caracteres</div>
+                  <div *ngIf="form['habilidadNueva']?.errors?.['maxlength']">Hasta 30 caracteres</div>
                 </mat-error>
               </mat-form-field>
-  
-              <mat-form-field appearance="fill">
-                    <mat-label>Roles</mat-label>
-                    <mat-select formControlName="rolId" (selectionChange)="onRolChange($event)">
-                    <mat-option *ngFor="let rol of roles" [value]="rol.rolId">
-                        {{ rol.nombre }}
-                    </mat-option>
-                    </mat-select>
-                </mat-form-field>
             </div>
+        </div>
+
+        <div class="row nueva-habilidad-container">
+          <div class="col">
+            <button mat-raised-button color="accent" (click)="agregarHabilidad()">Nueva Habilidad</button>
+          </div>
         </div>
 
         <div class="row">
             <div class="col" id="buttons">
                 <button mat-raised-button color="warn" (click)="onReset()">Limpiar</button>            
-                <button mat-raised-button color="primary" type="submit">Actualizar</button>
+                <button mat-raised-button color="primary" type="submit">Guardar Cambios</button>
               </div>
         </div>
       </form>
     </div>
   </div>
-  
-
- -->

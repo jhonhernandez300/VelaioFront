@@ -161,4 +161,10 @@ export class ApplicationDataService {
     // Agrega y actualiza localStorage
     this.setUsers([...users, newUser]); 
   }
+
+  deleteUser(usuarioId: number): void {
+    const users = this.getUsers();
+    const updatedUsers = users.filter(user => user.usuarioId !== usuarioId);
+    this.setUsers(updatedUsers);
+  }
 }

@@ -39,7 +39,7 @@ export class CrearTareaComponent implements OnInit{
       
       if(usuario != null){
         this.usuario = usuario;
-        console.log("En update ", this.usuario);    
+        //console.log("En update ", this.usuario);    
       }      
     });
   }

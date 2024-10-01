@@ -6,9 +6,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../general/confirm-dialog/confirm-dialog.component';
 import { CloseDialogComponent } from '../../general/close-dialog/close-dialog.component';
 import { iUsuarioConRolDTO } from '../../../interfaces/iUsuarioConRolDTO';
-import { UsuarioService } from '../../../servicios/usuario.service';
-import { RolService } from '../../../servicios/rol.service';
+import { ApplicationDataService } from '../../../servicios/application-data.service';
 import { iRol } from '../../../interfaces/iRol';
+import { iUsuario } from '../../../interfaces/iUsuario';
 
 @Component({
   selector: 'app-actualizar-usuario',
@@ -16,76 +16,63 @@ import { iRol } from '../../../interfaces/iRol';
   styleUrl: './actualizar-usuario.component.css'
 })
 export class ActualizarUsuarioComponent implements OnInit{
-  usuario: iUsuarioConRolDTO | null = null;
+  usuario: iUsuario | null = null;
   myForm!: FormGroup;
   selectedRolId!: number;
   submitted = false;
   selectedUsuarioId!: number;      
-  roles: iRol[] = [];
+
+  usuarioNuevo: iUsuario = {
+    usuarioId: this.usuario?.usuarioId || 0,  
+    nombre: '',  
+    email: '',
+    password: '',
+    edad: 0,
+    habilidades: [], 
+    tarea: []  
+  };
 
   constructor(
     private usuarioTransferService: UsuarioTransferService,    
-    private formBuilder: FormBuilder,
-    private usuarioService: UsuarioService,
+    private formBuilder: FormBuilder,    
     private router: Router,
     public dialog: MatDialog,
-    private rolService: RolService
+    private applicationDataService: ApplicationDataService
   ){this.initializeForm();}
 
   ngOnInit(): void {
-    this.obtenerUsuarioAEditar();
-    this.obtenerTodosLosRoles();    
+    this.obtenerUsuarioAEditar();    
   }
 
 obtenerUsuarioAEditar(): void{
-  // this.usuarioTransferService.currentUsuario.subscribe(usuario => {
+  this.usuarioTransferService.currentUser.subscribe(usuario => {
       
-  //   if(usuario != null){
-  //     this.usuario = usuario;            
-  //     this.myForm.patchValue(usuario);      
-  //     this.selectedRolId = usuario.rolId; 
-  //   }      
-  // });
+    if(usuario != null){
+      this.usuario = usuario;       
+      //console.log("usuario recibido ", this.usuario);     
+      this.myForm.patchValue(usuario);            
+    }      
+  });  
 }
 
-obtenerTodosLosRoles(): void{
-  this.rolService.ObtenerTodosLosRolesAsync().subscribe({
-    next: (response: any) => {
-      //console.log('response', response);          
-      this.roles = response.roles;
-      // Una vez obtenidos los roles, establecemos el valor por defecto del dropdown
-      if (this.roles) {
-        // actualizamos el valor del campo RolId con el rol del usuario
-        this.myForm.patchValue({ RolId: this.selectedRolId });  
-      }
-    },
-    error: (error: any) => {
-        //console.error('Request error:', error);
-        this.dialog.open(CloseDialogComponent, {            
-          data: { message: error } 
-        });
+eliminarHabilidad(habilidadId: number): void {
+  if (this.usuario) {    
+    if (this.usuario.habilidades.length > 1) {
+      this.usuario.habilidades = this.usuario.habilidades.filter(
+        (h) => h.habilidadId !== habilidadId
+      );
+    } else {
+      // Mostrar modal si solo hay una habilidad
+      this.dialog.open(CloseDialogComponent, {            
+        data: { message: "Debe quedar al menos una habilidad" }  
+      });
     }
-  });
-}
-
-onRolChange(event: any): void {    
-  this.selectedRolId = event.value; 
-    //console.log('Selected role ID:', this.selectedRolId);
-    this.myForm.patchValue({ RolId: this.selectedRolId });
+  }
 }
 
   private initializeForm(): void {
-    this.myForm = this.formBuilder.group({                                
-      usuarioId: [this.usuario?.usuarioId],
-      nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
-      email: ['', [Validators.required, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/), Validators.minLength(8), Validators.maxLength(30)]],
-      password: ['', [
-        Validators.required,
-        Validators.minLength(8),
-        Validators.maxLength(30),
-        this.validarContrasena 
-      ]],
-      rolId: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(7)]]
+    this.myForm = this.formBuilder.group({                                      
+      habilidadNueva: ['', [Validators.minLength(3), Validators.maxLength(30)]]
     });
   }
 
@@ -106,34 +93,81 @@ onRolChange(event: any): void {
     this.myForm.reset();
   }
 
-  public async onSubmit(): Promise<void> {
-    this.submitted = true;   
-    //console.log("Form value ", this.myForm.value);        
+  agregarHabilidad() {
+    if (this.myForm.get('habilidadNueva')?.invalid) {
+      this.submitted = true;
+      // No agregar si el campo es inválido
+      return;  
+    }
 
+    const nuevaHabilidad = {
+      nombre: this.myForm.get('habilidadNueva')?.value,
+      // Ejemplo para generar un ID único temporalmente
+      habilidadId: Date.now()  
+    };
+
+    if(this.usuario?.habilidades != null){
+      this.usuario.habilidades.push(nuevaHabilidad);
+    }    
+    
+    this.myForm.get('habilidadNueva')?.reset();
+  }
+
+  public async onSubmit(): Promise<void> {
+    this.submitted = true;
+  
     if (this.myForm.invalid) {
-      //console.log('Error de validación');
       this.dialog.open(CloseDialogComponent, {            
         data: { message: "Revise los valores del formulario" } 
       });
       return;
     }             
     
-    this.usuarioService.ActualizarUsuario(this.myForm.value).subscribe({
-      next: (response: any) => {
-          //console.log('response', response);
-          this.dialog.open(CloseDialogComponent, {            
-            data: { message: "Usuario actualizado" } 
-          });
-          this.myForm.reset();
-      },
-      error: (error: any) => {
-          console.error('Error en el componente:', error);
-          this.dialog.open(CloseDialogComponent, {            
-            data: { message: error } 
-          });
-      }
-  });     
+    await this.eliminarUsuarioYCrearNuevo(); 
   }
+  
+  async eliminarUsuarioYCrearNuevo(): Promise<void> {
+    if (!this.usuario) {
+      this.dialog.open(CloseDialogComponent, {            
+        data: { message: "No hay un usuario para actualizar" }  
+      });
+      return;
+    }
+  
+    // Elimina el usuario existente
+    this.applicationDataService.deleteUser(this.usuario.usuarioId);
+    
+    // Crea el nuevo usuario
+    this.crearNuevoUsuario();
+  }
+  
+
+  crearNuevoUsuario(): void {   
+    if (!this.usuario) {
+      this.dialog.open(CloseDialogComponent, {            
+        data: { message: "No hay un usuario para actualizar" }  
+      });
+      return;
+    }
+      
+    this.usuarioNuevo = {
+      usuarioId: this.usuario.usuarioId,
+      nombre: this.myForm.get('nombre')?.value || this.usuario.nombre,
+      email: this.myForm.get('email')?.value || this.usuario.email,
+      password: this.myForm.get('password')?.value || this.usuario.password,
+      edad: this.myForm.get('edad')?.value || this.usuario.edad,
+      habilidades: this.usuario.habilidades, 
+      tarea: this.usuario.tarea 
+    };
+
+    this.applicationDataService.addUser(this.usuarioNuevo);
+    this.dialog.open(CloseDialogComponent, {            
+      data: { message: "Usuario actualizado exitosamente." }  
+    });
+  
+    this.router.navigate(['/obtener-todos-usuarios']);
+  }
+  
 
   get form(): { [key: string]: AbstractControl; }
   {

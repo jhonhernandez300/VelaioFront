@@ -42,3 +42,25 @@
     font-size: 0.875em;
     width: 100%;
   }
+
+  .habilidades-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .habilidad-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .col{
+    padding-bottom: 10px;
+  }
+
+  .nueva-habilidad-container {
+    display: flex;
+    justify-content: flex-end;  
+    margin-bottom: 16px;        
+  }

@@ -21,7 +21,7 @@ export class ObtenerTodosComponent implements OnInit {
   showDiv = false;  
   userChoice = false;  
   users: any[] = [];
-  displayedColumns: string[] = ['nombre', 'email', 'password', 'edad', 'darTarea'];
+  displayedColumns: string[] = ['nombre', 'email', 'password', 'edad', 'darTarea', 'update'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator; 
 
@@ -52,10 +52,10 @@ export class ObtenerTodosComponent implements OnInit {
     this.router.navigate(['/crear-tarea']);        
   }
 
-  // update(usuario: iUsuarioConRolDTO) {
-  //   this.usuarioTransferService.changeUsuario(usuario);
-  //   this.router.navigate(['/usuario-actualizar']);        
-  // }
+  update(usuario: iUsuario) {
+    this.usuarioTransferService.changeUser(usuario);
+    this.router.navigate(['/usuario-actualizar']);        
+  }
 
   
   private updateUsuarios(id: number): void {
