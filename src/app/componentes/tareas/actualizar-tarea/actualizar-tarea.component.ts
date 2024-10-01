@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { TareaTransferService } from '../../../servicios/tarea-transfer.service';
-import { iTareaConUsuarioDTO } from '../../../interfaces/iTareaConUsuarioDTO';
+import { iTarea } from '../../../interfaces/iTarea';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { TareaService } from '../../../servicios/tarea.service';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../general/confirm-dialog/confirm-dialog.component';
 import { CloseDialogComponent } from '../../general/close-dialog/close-dialog.component';
-import { iTarea } from '../../../interfaces/iTarea';
-import { iUsuarioConRolDTO } from '../../../interfaces/iUsuarioConRolDTO';
+import { iUsuario } from '../../../interfaces/iUsuario';
+import { ApplicationDataService } from '../../../servicios/application-data.service'
 
 @Component({
   selector: 'app-actualizar-tarea',
@@ -16,39 +15,61 @@ import { iUsuarioConRolDTO } from '../../../interfaces/iUsuarioConRolDTO';
   styleUrl: './actualizar-tarea.component.css'
 })
 export class ActualizarTareaComponent implements OnInit{
-  tarea: iTareaConUsuarioDTO | null = null;
+  tarea: iTarea | null = null;
   myForm!: FormGroup;
   selectedEstadoId!: number;
   submitted = false;
   tareaIdSeleccionado!: number;    
+  showSection: string = "userChosen"
+  usuario: iUsuario = {
+    usuarioId: 0,
+    nombre: '',
+    email: '',
+    password: '',
+    edad: 0,
+    habilidades: [],
+    tarea: []
+  };
   estados = ['Pendiente', 'En proceso', 'Completado'];
 
   constructor(
     private tareaTransferService: TareaTransferService,
     private formBuilder: FormBuilder,
-    private tareaService: TareaService,
+    private applicationDataService: ApplicationDataService,
     private router: Router,
     public dialog: MatDialog
   ){this.initializeForm();}
 
+    obtenerUsuarioDeLaTarea(): void{
+      const usuario = this.applicationDataService.getUserByTaskId(this.tarea?.tareaId || 0); 
+      if (usuario) {
+        // Solo asigna si no es undefined
+        this.usuario = usuario; 
+      }
+    }
+
   ngOnInit() {
-    this.tareaTransferService.currentTarea.subscribe(tarea => {
+    this.obtenerTarea();
+    this.obtenerUsuarioDeLaTarea();
+    this.initializeForm();
+  }
+
+  obtenerTarea(): void{
+    this.tareaTransferService.currentTask.subscribe(tarea => {
       
       if(tarea != null){
         this.tarea = tarea;
-        //console.log("En update ", this.tarea);
+        console.log("En update ", this.tarea);
         this.myForm.patchValue(tarea);        
       }      
     });    
-    this.initializeForm();
   }
+
   private initializeForm(): void {
     this.myForm = this.formBuilder.group({                                
       tareaId: [this.tarea?.tareaId],
       descripcion: [this.tarea?.descripcion,[Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
-      estado: [this.tarea?.estado],
-      usuarioId: [this.tarea?.usuarioId],
-      usuarioNombre: [this.tarea?.usuarioNombre]
+      estado: [this.tarea?.estado]      
     });
   }
 
@@ -67,23 +88,11 @@ export class ActualizarTareaComponent implements OnInit{
         data: { message: "Revise los valores del formulario" } 
       });
       return;
-    }             
-    
-    this.tareaService.ActualizarTarea(this.myForm.value).subscribe({
-      next: (response: any) => {
-          console.log('response', response);
-          this.dialog.open(CloseDialogComponent, {            
-            data: { message: "Tarea actualizada" } 
-          });
-          this.myForm.reset();
-      },
-      error: (error: any) => {
-          console.error('Error en el componente:', error);
-          this.dialog.open(CloseDialogComponent, {            
-            data: { message: error } 
-          });
-      }
-  });     
+    }     
+  }
+
+  public onChangeUser(): void{
+      this.showSection = "table";
   }
 
   get form(): { [key: string]: AbstractControl; }

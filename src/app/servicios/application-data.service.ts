@@ -22,14 +22,16 @@ export class ApplicationDataService {
             { "habilidadId": 1, "nombre": "Angular" },
             { "habilidadId": 2, "nombre": "TypeScript" }
           ],
-          "tarea": [ // Tareas iniciales para el usuario 1
+          "tarea": [
             {
               "tareaId": 1,
-              "descripcion": "Crear componentes en Angular"
+              "descripcion": "Crear componentes en Angular",
+              "estado": "En proceso"
             },
             {
               "tareaId": 2,
-              "descripcion": "Mejorar el rendimiento de la aplicación"
+              "descripcion": "Mejorar el rendimiento de la aplicación",
+              "estado": "Terminada"
             }
           ]
         },
@@ -43,10 +45,11 @@ export class ApplicationDataService {
             { "habilidadId": 3, "nombre": "JavaScript" },
             { "habilidadId": 4, "nombre": "CSS" }
           ],
-          "tarea": [ // Tareas iniciales para el usuario 2
+          "tarea": [
             {
               "tareaId": 3,
-              "descripcion": "Desarrollar el frontend con JavaScript"
+              "descripcion": "Desarrollar el frontend con JavaScript",
+              "estado": "En proceso"
             }
           ]
         },
@@ -60,10 +63,11 @@ export class ApplicationDataService {
             { "habilidadId": 5, "nombre": "React" },
             { "habilidadId": 1, "nombre": "Angular" }
           ],
-          "tarea": [ // Tareas iniciales para el usuario 3
+          "tarea": [
             {
               "tareaId": 4,
-              "descripcion": "Implementar la vista con React"
+              "descripcion": "Implementar la vista con React",
+              "estado": "En proceso"
             }
           ]
         },
@@ -77,10 +81,11 @@ export class ApplicationDataService {
             { "habilidadId": 6, "nombre": "Vue.js" },
             { "habilidadId": 4, "nombre": "CSS" }
           ],
-          "tarea": [ // Tareas iniciales para el usuario 4
+          "tarea": [
             {
               "tareaId": 5,
-              "descripcion": "Diseñar el estilo del proyecto en CSS"
+              "descripcion": "Diseñar el estilo del proyecto en CSS",
+              "estado": "Terminada"
             }
           ]
         },
@@ -94,10 +99,11 @@ export class ApplicationDataService {
             { "habilidadId": 2, "nombre": "TypeScript" },
             { "habilidadId": 3, "nombre": "JavaScript" }
           ],
-          "tarea": [ // Tareas iniciales para el usuario 5
+          "tarea": [
             {
               "tareaId": 6,
-              "descripcion": "Escribir scripts en TypeScript"
+              "descripcion": "Escribir scripts en TypeScript",
+              "estado": "En proceso"
             }
           ]
         },
@@ -111,17 +117,22 @@ export class ApplicationDataService {
             { "habilidadId": 7, "nombre": "Node.js" },
             { "habilidadId": 5, "nombre": "React" }
           ],
-          "tarea": [ // Tareas iniciales para el usuario 6
+          "tarea": [
             {
               "tareaId": 7,
-              "descripcion": "Desarrollar el backend con Node.js"
+              "descripcion": "Desarrollar el backend con Node.js",
+              "estado": "Terminada"
             }
           ]
         }
       ];
-      
       this.setUsers(defaultUsers);
     }
+  }
+
+  getUserByTaskId(tareaId: number): iUsuario | undefined {
+    const users = this.getUsers();     
+    return users.find(user => user.tarea.some(tarea => tarea.tareaId === tareaId));
   }
 
   getUsers(): iUsuario[] {    

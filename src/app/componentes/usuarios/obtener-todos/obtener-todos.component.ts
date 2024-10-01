@@ -42,6 +42,10 @@ export class ObtenerTodosComponent implements OnInit {
     this.dataSource.data = this.users;
   }
 
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator; 
+  }
+
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();

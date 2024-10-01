@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { iUsuarioCorto } from '../../../interfaces/iUsuarioCorto';
-import { iTareaConUsuarioDTO } from '../../../interfaces/iTareaConUsuarioDTO';
+import { iUsuario } from '../../../interfaces/iUsuario';
+import { iTarea } from '../../../interfaces/iTarea';
 import { TareaService } from '../../../servicios/tarea.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../general/confirm-dialog/confirm-dialog.component';
@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { TareaTransferService } from '../../../servicios/tarea-transfer.service';
-import { UsuarioService } from '../../../servicios/usuario.service';
+import { ApplicationDataService } from '../../../servicios/application-data.service';
 import { SessionStorageService } from '../../../servicios/session-storage.service';
 
 @Component({
@@ -18,12 +18,12 @@ import { SessionStorageService } from '../../../servicios/session-storage.servic
   styleUrl: './obtener-todas-tareas.component.css'
 })
 export class ObtenerTodasTareasComponent implements OnInit {
-  dataSource = new MatTableDataSource<iTareaConUsuarioDTO>([]); 
+  dataSource = new MatTableDataSource<iTarea>([]); 
   errorMessage: string = '';  
   showDiv = false;  
-  userChoice = false;
-  rol: string = '';
-  displayedColumns: string[] = ['descripcion', 'estado', 'usuarioNombre', 'delete', 'update'];
+  userChoice = false;  
+  users: iUsuario[] = [];
+  displayedColumns: string[] = ['descripcion', 'estado', 'update'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator; 
 
@@ -32,35 +32,30 @@ export class ObtenerTodasTareasComponent implements OnInit {
     private tareaService: TareaService, 
     public dialog: MatDialog,
     public tareaTransferService: TareaTransferService,
-    private usuarioService: UsuarioService,
+    private applicationDataService: ApplicationDataService,
     private sessionStorageService: SessionStorageService
   ) { }
 
-  ngOnInit(): void {
-    this.rol = this.usuarioService.ObtenerRol();
-    this.loadAllTareas();
+  ngOnInit(): void {    
+    this.loadAll();
   }
 
-  public loadAllTareas(): void {
-    this.tareaService.ObtenerTareasConUsuarios().subscribe(
-      (response: any) => {
-        if (response.message != "Tareas obtenidas exitosamente.") {
-          this.handleEmpty(response.data);
-        } else {           
-          this.dataSource.data = response.data; // Actualiza la tabla con los datos recibidos
-          this.dataSource.paginator = this.paginator; // Conecta el paginador
+  public loadAll(): void {
+    this.users = this.applicationDataService.getUsers();
+    //console.log("users ", this.users);
 
-          console.log("rol ", this.rol);
-          if(this.rol == "Empleado"){
-            const id = Number(this.sessionStorageService.getData("id"));
-            this.dataSource.data = response.data.filter((tarea: iTareaConUsuarioDTO) => tarea.usuarioId === id);
-          }                    
-        }
-      },
-      (error: any) => {
-        this.handleError(error);
-      }
+    const tareasConUsuario = this.users.flatMap(user => 
+      user.tarea.map(tarea => ({        
+        tareaId: tarea.tareaId,
+        descripcion: tarea.descripcion, 
+        estado: tarea.estado
+      }))
     );
+    this.dataSource.data = tareasConUsuario; 
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator; 
   }
 
   applyFilter(event: Event) {
@@ -68,44 +63,14 @@ export class ObtenerTodasTareasComponent implements OnInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
  
-  update(tarea: iTareaConUsuarioDTO) {
+  update(tarea: iTarea) {
     this.tareaTransferService.changeTarea(tarea);
     this.router.navigate(['/actualizar-tarea']);        
-  }
+  }  
 
-  delete(id: number) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent);
-    dialogRef.afterClosed().subscribe(result => {
-      this.userChoice = result;  
-      if (this.userChoice) {
-        this.deleteTarea(id);
-      }
-    });
-  }
-
-  deleteTarea(id: number): void {    
-    this.tareaService.BorrarTarea(id).subscribe(
-      (response: any) => {
-        if (response.message != "Tarea eliminada exitosamente.") {
-          this.dialog.open(CloseDialogComponent, {
-            data: { message: response.message } 
-          });
-        } else {          
-          this.dialog.open(CloseDialogComponent, {            
-            data: { message: "Tarea borrada" } 
-          });
-          this.updateTareas(id);
-        }
-      },
-      (error: any) => {
-        this.handleError(error);
-      }
-    );
-  }
-
-  private updateTareas(id: number): void {    
-    this.dataSource.data = this.dataSource.data.filter(tarea => tarea.tareaId !== id);
-  }
+  // private updateTareas(id: number): void {    
+  //   this.dataSource.data = this.dataSource.data.filter(usuario => usuario.usuarioId !== id);
+  // }
 
   private handleEmpty(message: string): void {
     this.errorMessage = message;

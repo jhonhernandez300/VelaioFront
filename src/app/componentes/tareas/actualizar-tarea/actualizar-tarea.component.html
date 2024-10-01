@@ -2,12 +2,26 @@
     <div id="second-container">
       <mat-card id="header">
         <mat-card-header>
-          <mat-card-title>ACTUALIZR TAREA</mat-card-title>
-          <mat-card-subtitle *ngIf="tarea?.usuarioNombre">
-            Usuario: {{ tarea?.usuarioNombre }}
-          </mat-card-subtitle>
+          <mat-card-title>ACTUALIZAR TAREA</mat-card-title>
+          <div>            
+          </div>          
         </mat-card-header>
       </mat-card>
+
+      <div *ngIf="showSection == 'userChosen'">
+        <mat-card id="header">
+          <mat-card-header>   
+              <mat-card-subtitle *ngIf="usuario">
+                 {{ usuario.nombre }} {{ usuario.email }} {{ usuario.edad }} 
+              </mat-card-subtitle>
+          </mat-card-header>
+        </mat-card>
+        <button *ngIf="showSection == 'userChosen'" mat-raised-button color="accent" (click)="onChangeUser()">Cambiar Usuario</button>
+      </div>      
+
+      <div id="table" *ngIf="showSection == 'table'">
+        <app-obtener-todos></app-obtener-todos>
+      </div>
   
       <form [formGroup]="myForm" id="the-form" (ngSubmit)="onSubmit()">
         <div class="row">
@@ -35,7 +49,7 @@
   
           <div class="col" id="buttons">
             <button mat-raised-button color="warn" (click)="onReset()">Limpiar</button>
-            <button mat-raised-button color="primary" type="submit">Guardar</button>
+            <button mat-raised-button color="primary" type="submit">Guardar</button>                       
           </div>
         </div>
       </form>

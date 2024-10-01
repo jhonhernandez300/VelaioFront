@@ -1,4 +1,5 @@
 export interface iTarea{
     tareaId: number,
-    descripcion: string
+    descripcion: string,
+    estado: string
 }
