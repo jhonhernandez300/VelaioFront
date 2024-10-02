@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TareaTransferService } from '../../../servicios/tarea-transfer.service';
+import { UsuarioTransferService } from '../../../servicios/usuario-transfer.service';
 import { iTarea } from '../../../interfaces/iTarea';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -34,6 +35,7 @@ export class ActualizarTareaComponent implements OnInit{
 
   constructor(
     private tareaTransferService: TareaTransferService,
+    private usuarioTransferService: UsuarioTransferService,
     private formBuilder: FormBuilder,
     private applicationDataService: ApplicationDataService,
     private router: Router,
@@ -52,14 +54,17 @@ export class ActualizarTareaComponent implements OnInit{
     this.obtenerTarea();
     this.obtenerUsuarioDeLaTarea();
     this.initializeForm();
+    this.usuarioTransferService.userChange$.subscribe(() => {       
+      this.updateUser();
+    });
+
   }
 
   obtenerTarea(): void{
     this.tareaTransferService.currentTask.subscribe(tarea => {
       
       if(tarea != null){
-        this.tarea = tarea;
-        console.log("En update ", this.tarea);
+        this.tarea = tarea;        
         this.myForm.patchValue(tarea);        
       }      
     });    
@@ -91,12 +96,23 @@ export class ActualizarTareaComponent implements OnInit{
     }     
   }
 
-  public onChangeUser(): void{
-      this.showSection = "table";
+  public onChangeUser(): void{    
+    this.showSection = "table";      
+    this.usuarioTransferService.emitUserChange();
   }
 
   get form(): { [key: string]: AbstractControl; }
   {
       return this.myForm.controls;
+  }
+
+  updateUser(): void{
+    this.usuarioTransferService.currentUser.subscribe(usuario => {
+      
+      if(usuario != null){
+        this.usuario = usuario;     
+        this.showSection = "userChosen";
+      }      
+    });    
   }
 }

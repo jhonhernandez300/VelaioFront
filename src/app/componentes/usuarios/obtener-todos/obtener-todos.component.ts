@@ -18,7 +18,7 @@ import { UsuarioTransferService } from '../../../servicios/usuario-transfer.serv
 export class ObtenerTodosComponent implements OnInit {
   dataSource = new MatTableDataSource<iUsuario>([]); 
   errorMessage: string = '';  
-  showDiv = false;  
+  showDiv = false;    
   userChoice = false;  
   users: any[] = [];
   displayedColumns: string[] = ['nombre', 'email', 'password', 'edad', 'darTarea', 'update'];
@@ -32,9 +32,16 @@ export class ObtenerTodosComponent implements OnInit {
     public usuarioTransferService: UsuarioTransferService
   ) { }
 
-  ngOnInit(): void {    
-    this.loadAllUsers();
+  ngOnInit(): void {        
+    this.loadAllUsers();    
+    this.usuarioTransferService.userChange$.subscribe(() => {       
+      this.loadViewOptions();
+    });
   }  
+
+  public loadViewOptions(): void {    
+    this.displayedColumns = ['nombre', 'email', 'choose'];
+  }
 
   public loadAllUsers(): void {
     this.users = this.applicationDataService.getUsers();
@@ -60,7 +67,6 @@ export class ObtenerTodosComponent implements OnInit {
     this.usuarioTransferService.changeUser(usuario);
     this.router.navigate(['/usuario-actualizar']);        
   }
-
   
   private updateUsuarios(id: number): void {
     this.dataSource.data = this.dataSource.data.filter(usuario => usuario.usuarioId !== id);
@@ -80,5 +86,10 @@ export class ObtenerTodosComponent implements OnInit {
     console.error('Error:', error);
     this.errorMessage = error;
     this.showTemporaryDiv();
+  }
+
+  choose(usuario: iUsuario) {
+    this.usuarioTransferService.changeUser(usuario);    
+    this.usuarioTransferService.emitUserChange();
   }
 }
