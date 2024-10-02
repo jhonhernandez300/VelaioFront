@@ -124,7 +124,29 @@ export class ApplicationDataService {
               "estado": "Terminada"
             }
           ]
-        }
+        },
+        {
+          "usuarioId": 1,
+          "nombre": "Juan Pérez",
+          "email": "juan.perezcastro@example.com",
+          "password": "password123",
+          "edad": 30,
+          "habilidades": [
+            { "habilidadId": 8, "nombre": "Angular" }            
+          ],
+          "tarea": [
+            {
+              "tareaId": 8,
+              "descripcion": "Crear componentes en Angular",
+              "estado": "En proceso"
+            },
+            {
+              "tareaId": 9,
+              "descripcion": "Mejorar el rendimiento de la aplicación",
+              "estado": "Terminada"
+            }
+          ]
+        },
       ];
       this.setUsers(defaultUsers);
     }

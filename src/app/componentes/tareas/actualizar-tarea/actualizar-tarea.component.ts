@@ -21,7 +21,9 @@ export class ActualizarTareaComponent implements OnInit{
   selectedEstadoId!: number;
   submitted = false;
   tareaIdSeleccionado!: number;    
-  showSection: string = "userChosen"
+  showSection: string = "userChosen";
+  nombreUsuarioInicial: string = '';
+  nombreUsuarioCambiado: string = '';
 
   usuario: iUsuario = {
     usuarioId: 0,
@@ -53,11 +55,12 @@ export class ActualizarTareaComponent implements OnInit{
     public dialog: MatDialog
   ){this.initializeForm();}
 
-    obtenerUsuarioDeLaTarea(): void{
+  obtenerUsuarioDeLaTarea(): void{
       const usuario = this.applicationDataService.getUserByTaskId(this.tarea?.tareaId || 0); 
       if (usuario) {
         // Solo asigna si no es undefined
         this.usuario = usuario; 
+        this.nombreUsuarioInicial = this.usuario.nombre;
       }
     }
 
@@ -105,6 +108,18 @@ export class ActualizarTareaComponent implements OnInit{
     }    
   }
 
+  crearUsuarioNuevo(): void{
+    this.usuarioNuevo = {
+      usuarioId: this.usuario.usuarioId,
+      nombre: this.usuario.nombre,
+      email: this.usuario.email,
+      password: this.usuario.password,
+      edad: this.usuario.edad,
+      habilidades: this.usuario.habilidades, 
+      tarea: this.usuario.tarea
+    };
+  }
+
   public async onSubmit(): Promise<void> {
     this.submitted = true;   
     //console.log("Form value ", this.myForm.value);        
@@ -116,28 +131,25 @@ export class ActualizarTareaComponent implements OnInit{
       });
       return;
     }     
-
-    this.agregarTarea();
-
-    this.usuarioNuevo = {
-      usuarioId: this.usuario.usuarioId,
-      nombre: this.usuario.nombre,
-      email: this.usuario.email,
-      password: this.usuario.password,
-      edad: this.usuario.edad,
-      habilidades: this.usuario.habilidades, 
-      tarea: this.usuario.tarea
-    };
     
-    this.applicationDataService.deleteUser(this.usuario?.usuarioId);
-    this.applicationDataService.addUser(this.usuarioNuevo);
+    this.crearUsuarioNuevo();
+    
+    if(this.nombreUsuarioInicial != this.nombreUsuarioCambiado){
+      this.agregarTarea();
 
-    this.usuarioTransferService.emitUserRestartChange();
+        //Guardar una tarea nueva con las modificaciones
+      this.applicationDataService.deleteUser(this.usuario?.usuarioId);
+      this.applicationDataService.addUser(this.usuarioNuevo);      
 
-    this.dialog.open(CloseDialogComponent, {            
-      data: { message: "Tarea actualizada exitosamente." }  
-    });    
-    this.router.navigate(['/obtener-todas-tareas']);
+      this.dialog.open(CloseDialogComponent, {            
+        data: { message: "Tarea actualizada exitosamente." }  
+      });    
+      this.router.navigate(['/obtener-todas-tareas']);
+    }else{
+      this.dialog.open(CloseDialogComponent, {            
+        data: { message: "No pueden haber 2 usuarios con el mismo nombre" } 
+      });
+    }
   }
 
   agregarTarea() {
@@ -174,6 +186,7 @@ export class ActualizarTareaComponent implements OnInit{
       if(usuario != null){
         this.usuario = usuario;     
         this.showSection = "userChosen";
+        this.nombreUsuarioCambiado = this.usuario.nombre;
       }      
     });    
   }
