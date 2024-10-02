@@ -37,7 +37,14 @@ export class ObtenerTodosComponent implements OnInit {
     this.usuarioTransferService.userChange$.subscribe(() => {       
       this.loadViewOptions();
     });
+    this.usuarioTransferService.userRestartChange$.subscribe(() => {       
+      this.loadDefaultViewOptions();
+    });
   }  
+
+  public loadDefaultViewOptions(): void {    
+    this.displayedColumns = ['nombre', 'email', 'password', 'edad', 'darTarea', 'update'];
+  }
 
   public loadViewOptions(): void {    
     this.displayedColumns = ['nombre', 'email', 'choose'];

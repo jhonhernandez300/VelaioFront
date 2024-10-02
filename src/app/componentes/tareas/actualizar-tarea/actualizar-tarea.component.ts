@@ -134,7 +134,7 @@ export class ActualizarTareaComponent implements OnInit{
     this.dialog.open(CloseDialogComponent, {            
       data: { message: "Tarea actualizada exitosamente." }  
     });
-  
+    this.usuarioTransferService.emitUserRestartChange();
     this.router.navigate(['/obtener-todas-tareas']);
   }
 

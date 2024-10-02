@@ -13,6 +13,9 @@ export class UsuarioTransferService {
   private userChangeSubject = new BehaviorSubject<void | null>(null); 
   userChange$ = this.userChangeSubject.asObservable();
 
+  private userRestartChangeSubject = new BehaviorSubject<void | null>(null); 
+  userRestartChange$ = this.userRestartChangeSubject.asObservable();
+
   constructor() { }
 
   changeUser(usuario: iUsuario) {
@@ -22,6 +25,10 @@ export class UsuarioTransferService {
 
   emitUserChange(): void {    
     this.userChangeSubject.next();
+  }
+
+  emitUserRestartChange(): void {    
+    this.userRestartChangeSubject.next();
   }
 }
 
