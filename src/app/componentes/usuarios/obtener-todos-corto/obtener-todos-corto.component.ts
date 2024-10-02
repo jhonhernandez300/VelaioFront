@@ -11,17 +11,18 @@ import { MatPaginator } from '@angular/material/paginator';
 import { UsuarioTransferService } from '../../../servicios/usuario-transfer.service';
 
 @Component({
-  selector: 'app-obtener-todos',
-  templateUrl: './obtener-todos.component.html',
-  styleUrl: './obtener-todos.component.css'
+  selector: 'app-obtener-todos-corto',
+  templateUrl: './obtener-todos-corto.component.html',
+  styleUrl: './obtener-todos-corto.component.css'
 })
-export class ObtenerTodosComponent implements OnInit {
+export class ObtenerTodosCortoComponent implements OnInit {
   dataSource = new MatTableDataSource<iUsuario>([]); 
   errorMessage: string = '';  
-  showDiv = false;      
+  showDiv = false;    
+  showAll = false;
   userChoice = false;  
   users: any[] = [];
-  displayedColumns: string[] = ['nombre', 'email', 'password', 'edad', 'darTarea', 'update'];
+  displayedColumns: string[] = ['nombre', 'email', 'choose'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator; 
 
@@ -34,7 +35,7 @@ export class ObtenerTodosComponent implements OnInit {
 
   ngOnInit(): void {        
     this.loadAllUsers();        
-  }   
+  }  
 
   public loadAllUsers(): void {
     this.users = this.applicationDataService.getUsers();
@@ -49,21 +50,7 @@ export class ObtenerTodosComponent implements OnInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
-  }
-
-  darTarea(usuario: iUsuario) {
-    this.usuarioTransferService.changeUser(usuario);
-    this.router.navigate(['/crear-tarea']);        
-  }
-
-  update(usuario: iUsuario) {
-    this.usuarioTransferService.changeUser(usuario);
-    this.router.navigate(['/usuario-actualizar']);        
-  }
-  
-  private updateUsuarios(id: number): void {
-    this.dataSource.data = this.dataSource.data.filter(usuario => usuario.usuarioId !== id);
-  }
+  } 
 
   private handleEmpty(message: string): void {
     this.errorMessage = message;
@@ -79,5 +66,11 @@ export class ObtenerTodosComponent implements OnInit {
     console.error('Error:', error);
     this.errorMessage = error;
     this.showTemporaryDiv();
-  }  
+  }
+
+  choose(usuario: iUsuario) {
+    this.usuarioTransferService.changeUser(usuario);    
+    this.usuarioTransferService.emitUserChange();
+  }
 }
+

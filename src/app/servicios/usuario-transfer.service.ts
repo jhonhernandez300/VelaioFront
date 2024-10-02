@@ -16,6 +16,8 @@ export class UsuarioTransferService {
   private userRestartChangeSubject = new BehaviorSubject<void | null>(null); 
   userRestartChange$ = this.userRestartChangeSubject.asObservable();
 
+  private isUserChanging: boolean = false;
+
   constructor() { }
 
   changeUser(usuario: iUsuario) {
@@ -24,11 +26,17 @@ export class UsuarioTransferService {
   }
 
   emitUserChange(): void {    
-    this.userChangeSubject.next();
+    if (!this.isUserChanging) { // cambio: prevenir cambios simultáneos
+      this.isUserChanging = true; // nuevo: marcar como en proceso
+      this.userChangeSubject.next();
+    }
   }
 
   emitUserRestartChange(): void {    
-    this.userRestartChangeSubject.next();
+    if (this.isUserChanging) { // cambio: prevenir ejecuciones simultáneas
+      this.isUserChanging = false; // nuevo: resetear el flag
+      this.userRestartChangeSubject.next();
+    }
   }
 }
 

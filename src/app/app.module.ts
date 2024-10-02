@@ -32,6 +32,7 @@ import { ActualizarTareaComponent } from './componentes/tareas/actualizar-tarea/
 import { LoginComponent } from './componentes/general/login/login.component';
 import { AccessDeniedComponent } from './componentes/general/access-denied/access-denied.component';
 import { ActualizarUsuarioComponent } from './componentes/usuarios/actualizar-usuario/actualizar-usuario.component';
+import { ObtenerTodosCortoComponent } from './componentes/usuarios/obtener-todos-corto/obtener-todos-corto.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +47,8 @@ import { ActualizarUsuarioComponent } from './componentes/usuarios/actualizar-us
     ActualizarTareaComponent,
     LoginComponent,
     AccessDeniedComponent,
-    ActualizarUsuarioComponent
+    ActualizarUsuarioComponent,
+    ObtenerTodosCortoComponent
   ],
   imports: [
     BrowserModule,

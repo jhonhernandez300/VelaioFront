@@ -107,7 +107,7 @@ export class ActualizarTareaComponent implements OnInit{
 
   public async onSubmit(): Promise<void> {
     this.submitted = true;   
-    console.log("Form value ", this.myForm.value);        
+    //console.log("Form value ", this.myForm.value);        
 
     if (this.myForm.invalid) {
       //console.log('Error de validación');
@@ -131,10 +131,12 @@ export class ActualizarTareaComponent implements OnInit{
     
     this.applicationDataService.deleteUser(this.usuario?.usuarioId);
     this.applicationDataService.addUser(this.usuarioNuevo);
+
+    this.usuarioTransferService.emitUserRestartChange();
+
     this.dialog.open(CloseDialogComponent, {            
       data: { message: "Tarea actualizada exitosamente." }  
-    });
-    this.usuarioTransferService.emitUserRestartChange();
+    });    
     this.router.navigate(['/obtener-todas-tareas']);
   }
 
