@@ -15,7 +15,7 @@ const routes: Routes = [
   { path: 'actualizar-tarea', component: ActualizarTareaComponent},
   { path: 'access-denied', component: AccessDeniedComponent  },
   { path: 'obtener-todas-tareas', component: ObtenerTodasTareasComponent },
-  //{ path: 'guardar-usuario', component: GuardarUsuarioComponent },
+  { path: 'guardar-usuario', component: GuardarUsuarioComponent },
   { path: 'obtener-todos-usuarios', component: ObtenerTodosComponent },
   { path: 'crear-tarea', component: CrearTareaComponent },
   { path: '**', component: ObtenerTodosComponent },

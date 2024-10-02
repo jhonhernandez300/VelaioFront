@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { UsuarioService } from '../../../servicios/usuario.service';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ApplicationDataService } from '../../../servicios/application-data.service';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../general/confirm-dialog/confirm-dialog.component';
 import { CloseDialogComponent } from '../../general/close-dialog/close-dialog.component';
 import { iUsuarioSinIdDTO } from '../../../interfaces/iUsuarioSinIdDTO';
 import { UsuarioTransferService } from '../../../servicios/usuario-transfer.service';
-import { RolService } from '../../../servicios/rol.service';
-import { iRol } from '../../../interfaces/iRol';
+import { iUsuario } from '../../../interfaces/iUsuario';
 
 @Component({
   selector: 'app-guardar-usuario',
@@ -20,48 +19,35 @@ export class GuardarUsuarioComponent implements OnInit{
   submitted = false; 
   selectedUsuarioId!: number;
   selectedRolId: number = 0;
-  roles: iRol[] = [];
+  
+  usuarioNuevo: iUsuario = {
+    usuarioId: 0,  
+    nombre: '',  
+    email: '',
+    password: '',
+    edad: 0,
+    habilidades: [], 
+    tarea: []  
+  };
   
   constructor(
     private formBuilder: FormBuilder,
-    private usuarioService: UsuarioService,
+    private applicationDataService: ApplicationDataService,
     private router: Router,
     public dialog: MatDialog,
-    private usuarioTransferService: UsuarioTransferService,
-    private rolService: RolService
+    private usuarioTransferService: UsuarioTransferService    
   ) {
     this.initializeForm();
   }
 
-  ngOnInit(): void {   
-    this.rolService.ObtenerTodosLosRolesAsync().subscribe({
-      next: (response: any) => {
-        //console.log('response', response);          
-        this.roles = response.roles;
-        // Una vez obtenidos los roles, establecemos el valor por defecto del dropdown
-        if (this.roles) {
-          // actualizamos el valor del campo RolId con el rol del usuario
-          this.myForm.patchValue({ RolId: this.selectedRolId });  
-        }
-      },
-      error: (error: any) => {
-          //console.error('Request error:', error);
-          this.dialog.open(CloseDialogComponent, {            
-            data: { message: error } 
-          });
-      }
-    });
-  }
-
-  onRolChange(event: any): void {    
-    this.selectedRolId = event.value; 
-      //console.log('Selected role ID:', this.selectedRolId);
-      this.myForm.patchValue({ RolId: this.selectedRolId });
+  ngOnInit(): void {       
   }
 
   private initializeForm(): void {
-    this.myForm = this.formBuilder.group({                                
-      nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
+    this.myForm = this.formBuilder.group({     
+      //Número único 
+      usuarioid: [Math.floor(Math.random() * 1000)],                          
+      nombre: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(30)]],
       email: ['', [Validators.required, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/), Validators.minLength(8), Validators.maxLength(30)]],
       password: ['', [
         Validators.required,
@@ -69,8 +55,19 @@ export class GuardarUsuarioComponent implements OnInit{
         Validators.maxLength(30),
         this.validarContrasena 
       ]],
-      rolId: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(7)]]
+      edad: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(3), this.validarEdad]],
+      habilidades: this.formBuilder.array([ // Inicializamos como un FormArray
+        this.formBuilder.group({
+          habilidadId: [Math.floor(Math.random() * 1000)],  
+          nombre: ['Angular', Validators.required]
+        })      
+      ])
     });
+  }
+
+  validarEdad(control: AbstractControl) {
+    const edadIngresada = control.value;        
+    return edadIngresada > 18 ? null : { 'edadInvalida': true };    
   }
 
   validarContrasena(control: any) {
@@ -99,23 +96,25 @@ export class GuardarUsuarioComponent implements OnInit{
         data: { message: "Revisa los valores del formulario" } 
       });
       return;
-    }             
-    
-    this.usuarioService.CrearUsuario(this.myForm.value).subscribe({
-      next: (response: any) => {
-          //console.log('response', response);
-          this.dialog.open(CloseDialogComponent, {            
-            data: { message: "Usuario creado" } 
-          });
-          this.myForm.reset();
-      },
-      error: (error: any) => {
-          //console.error('Request error:', error);
-          this.dialog.open(CloseDialogComponent, {            
-            data: { message: error } 
-          });
-      }
-  });     
+    }            
+    this.crearUsuarioNuevo();
+    this. applicationDataService.addUser(this.usuarioNuevo);   
+    this.dialog.open(CloseDialogComponent, {            
+      data: { message: "Usuario grabado" } 
+    });
+    this.router.navigate(['/obtener-todos-usuarios']);
+  }
+
+  crearUsuarioNuevo(): void{
+    this.usuarioNuevo = {
+      usuarioId: this.myForm.get('usuarioId')?.value,
+      nombre: this.myForm.get('nombre')?.value,
+      email: this.myForm.get('email')?.value,
+      password: this.myForm.get('password')?.value,
+      edad: this.myForm.get('edad')?.value,
+      habilidades: (this.myForm.get('habilidades') as FormArray).value, 
+      tarea: []
+    };
   }
 
   get form(): { [key: string]: AbstractControl; }

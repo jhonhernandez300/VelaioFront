@@ -15,7 +15,7 @@
                 <input matInput formControlName="nombre" placeholder="nombre">
                 <mat-error *ngIf="submitted && form['nombre'].errors">
                   <div *ngIf="form['nombre']?.errors?.['required']">Requerido </div>
-                  <div *ngIf="form['nombre']?.errors?.['minlength']">Al menos 3 caracteres</div>
+                  <div *ngIf="form['nombre']?.errors?.['minlength']">Al menos 5 caracteres</div>
                   <div *ngIf="form['nombre']?.errors?.['maxlength']">Hasta 30 caracteres</div>
                 </mat-error>
               </mat-form-field>
@@ -44,14 +44,17 @@
                 </mat-error>
               </mat-form-field>
   
-              <mat-form-field appearance="fill">
-                    <mat-label>Roles</mat-label>
-                    <mat-select formControlName="rolId" (selectionChange)="onRolChange($event)">
-                    <mat-option *ngFor="let rol of roles" [value]="rol.rolId">
-                        {{ rol.nombre }}
-                    </mat-option>
-                    </mat-select>
-                </mat-form-field>
+              <mat-form-field appearance="fill" class="form-element">
+                <mat-label>Edad</mat-label>
+                <input matInput formControlName="edad" placeholder="edad">
+                <mat-error *ngIf="submitted && form['edad'].errors">
+                  <div *ngIf="form['edad']?.errors?.['required']">Requerido</div>
+                  <div *ngIf="form['edad']?.errors?.['minlength']">Al menos 2 caracteres</div>
+                  <div *ngIf="form['edad']?.errors?.['maxlength']">Hasta 3 caracteres</div>
+                   <!-- Error específico -->
+                  <div *ngIf="form['edad']?.errors?.['edadInvalida']">Debe ser mayor de 18 años</div>
+                </mat-error>
+              </mat-form-field>
             </div>
         </div>
 
