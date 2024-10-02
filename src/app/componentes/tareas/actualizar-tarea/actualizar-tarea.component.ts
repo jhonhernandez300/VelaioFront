@@ -22,6 +22,7 @@ export class ActualizarTareaComponent implements OnInit{
   submitted = false;
   tareaIdSeleccionado!: number;    
   showSection: string = "userChosen"
+
   usuario: iUsuario = {
     usuarioId: 0,
     nombre: '',
@@ -32,6 +33,16 @@ export class ActualizarTareaComponent implements OnInit{
     tarea: []
   };
   estados = ['Pendiente', 'En proceso', 'Completado'];
+
+  usuarioNuevo: iUsuario = {
+    usuarioId: this.usuario?.usuarioId || 0,  
+    nombre: '',  
+    email: '',
+    password: '',
+    edad: 0,
+    habilidades: [], 
+    tarea: []  
+  };
 
   constructor(
     private tareaTransferService: TareaTransferService,
@@ -54,10 +65,13 @@ export class ActualizarTareaComponent implements OnInit{
     this.obtenerTarea();
     this.obtenerUsuarioDeLaTarea();
     this.initializeForm();
+
     this.usuarioTransferService.userChange$.subscribe(() => {       
       this.updateUser();
     });
-
+    //Eliminar tarea al inicio para que en formulario esté la que va a quedar
+    if(this.tarea?.tareaId != null)
+      this.eliminarTarea(this.tarea?.tareaId);    
   }
 
   obtenerTarea(): void{
@@ -83,9 +97,17 @@ export class ActualizarTareaComponent implements OnInit{
     this.myForm.reset();
   }
 
+  eliminarTarea(tareaId: number): void {
+    if (this.tarea) {          
+        this.usuario.tarea = this.usuario.tarea.filter(
+          (h) => h.tareaId !== tareaId
+        );      
+    }    
+  }
+
   public async onSubmit(): Promise<void> {
     this.submitted = true;   
-    //console.log("Form value ", this.myForm.value);        
+    console.log("Form value ", this.myForm.value);        
 
     if (this.myForm.invalid) {
       //console.log('Error de validación');
@@ -94,6 +116,44 @@ export class ActualizarTareaComponent implements OnInit{
       });
       return;
     }     
+
+    this.agregarTarea();
+
+    this.usuarioNuevo = {
+      usuarioId: this.usuario.usuarioId,
+      nombre: this.usuario.nombre,
+      email: this.usuario.email,
+      password: this.usuario.password,
+      edad: this.usuario.edad,
+      habilidades: this.usuario.habilidades, 
+      tarea: this.usuario.tarea
+    };
+    
+    this.applicationDataService.deleteUser(this.usuario?.usuarioId);
+    this.applicationDataService.addUser(this.usuarioNuevo);
+    this.dialog.open(CloseDialogComponent, {            
+      data: { message: "Tarea actualizada exitosamente." }  
+    });
+  
+    this.router.navigate(['/obtener-todas-tareas']);
+  }
+
+  agregarTarea() {
+    if (this.myForm.get('descripcion')?.invalid) {
+      this.submitted = true;
+      // No agregar si el campo es inválido
+      return;  
+    }
+
+    const nuevaTarea = {
+      descripcion: this.myForm.get('descripcion')?.value,
+      estado: this.myForm.get('estado')?.value,
+      // Ejemplo para generar un ID único temporalmente
+      tareaId: Date.now()  
+    };
+    
+    this.usuario.tarea.push(nuevaTarea);
+    this.myForm.get('descripcion')?.reset();
   }
 
   public onChangeUser(): void{    
